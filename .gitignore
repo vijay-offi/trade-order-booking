@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets
+application.properties
+application.yml
+
+# Generated jars
+*.jar
+*.war

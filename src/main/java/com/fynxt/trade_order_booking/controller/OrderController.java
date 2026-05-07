@@ -1,6 +1,5 @@
 package com.fynxt.trade_order_booking.controller;
 
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fynxt.trade_order_booking.dto.AddPortfolioRequest;
 import com.fynxt.trade_order_booking.dto.OrderRequest;
+import com.fynxt.trade_order_booking.dto.OverlapResponse;
 import com.fynxt.trade_order_booking.dto.PortfolioResponse;
 import com.fynxt.trade_order_booking.entity.Order;
 import com.fynxt.trade_order_booking.service.OrderService;
@@ -22,6 +22,10 @@ import lombok.RequiredArgsConstructor;
 public class OrderController {
 
     private final OrderService orderService;
+
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @PostMapping("/orders")
     public Order placeOrder(@RequestBody OrderRequest request) {
@@ -50,5 +54,12 @@ public class OrderController {
             @RequestBody AddPortfolioRequest request
     ) {
         return orderService.addToPortfolio(request);
+    }
+    
+    @GetMapping("/portfolio/{traderId}/overlap")
+    public OverlapResponse getOverlap(
+            @PathVariable String traderId
+    ) {
+        return orderService.getOverlap(traderId);
     }
 }

@@ -1,7 +1,7 @@
 package com.fynxt.trade_order_booking.repository;
 
-import org.apache.el.stream.Optional;
-import org.hibernate.mapping.List;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.fynxt.trade_order_booking.entity.Portfolio;

@@ -2,10 +2,14 @@ package com.fynxt.trade_order_booking.service;
 
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 
-import org.hibernate.mapping.List;
-import org.hibernate.mapping.Map;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,18 +19,24 @@ import com.fynxt.trade_order_booking.dto.PortfolioResponse;
 import com.fynxt.trade_order_booking.entity.Order;
 import com.fynxt.trade_order_booking.entity.Portfolio;
 import com.fynxt.trade_order_booking.entity.Side;
+import com.fynxt.trade_order_booking.entity.Status;
 import com.fynxt.trade_order_booking.repository.OrderRepository;
 import com.fynxt.trade_order_booking.repository.PortfolioRepository;
-
-import ch.qos.logback.core.status.Status;
-import lombok.RequiredArgsConstructor;
+import com.fynxt.trade_order_booking.dto.BasketOverlap;
+import com.fynxt.trade_order_booking.dto.OverlapResponse;
+import com.fynxt.trade_order_booking.util.OverlapUtil;
 
 @Service
-@RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
     private final PortfolioRepository portfolioRepository;
+    
+    public OrderService(OrderRepository orderRepository,
+            PortfolioRepository portfolioRepository) {
+		this.orderRepository = orderRepository;
+		this.portfolioRepository = portfolioRepository;
+	}
 
     @Transactional
     public Order placeOrder(OrderRequest request) {
@@ -168,5 +178,60 @@ public class OrderService {
         portfolioRepository.save(portfolio);
 
         return "Portfolio updated successfully";
+    }
+    
+    public OverlapResponse getOverlap(String traderId) {
+
+        List<Portfolio> portfolios =
+                portfolioRepository.findByTraderId(traderId);
+
+        Set<String> portfolioStocks = new HashSet<>();
+
+        for (Portfolio portfolio : portfolios) {
+            portfolioStocks.add(portfolio.getStock());
+        }
+
+        List<BasketOverlap> overlaps = new ArrayList<>();
+
+        double highest = 0;
+
+        String dominantBasket = "";
+
+        for (Map.Entry<String, List<String>> entry :
+                OverlapUtil.BASKETS.entrySet()) {
+
+            double overlap = OverlapUtil.calculateOverlap(
+                    portfolioStocks,
+                    entry.getValue()
+            );
+
+            overlaps.add(
+                    new BasketOverlap(
+                            entry.getKey(),
+                            String.format("%.2f%%", overlap)
+                    )
+            );
+
+            if (overlap > highest) {
+                highest = overlap;
+                dominantBasket = entry.getKey();
+            }
+        }
+
+        String riskFlag;
+
+        if (highest >= 60) {
+            riskFlag = "HIGH";
+        } else if (highest >= 40) {
+            riskFlag = "MEDIUM";
+        } else {
+            riskFlag = "LOW";
+        }
+
+        return new OverlapResponse(
+                overlaps,
+                dominantBasket,
+                riskFlag
+        );
     }
 }

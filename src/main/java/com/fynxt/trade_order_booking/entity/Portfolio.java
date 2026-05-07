@@ -15,7 +15,37 @@ public class Portfolio {
     private Long id;
 
     private String traderId;
-    private String stock;
+    public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
+	public String getTraderId() {
+		return traderId;
+	}
+	public void setTraderId(String traderId) {
+		this.traderId = traderId;
+	}
+	public String getStock() {
+		return stock;
+	}
+	public void setStock(String stock) {
+		this.stock = stock;
+	}
+	public String getSector() {
+		return sector;
+	}
+	public void setSector(String sector) {
+		this.sector = sector;
+	}
+	public int getQuantity() {
+		return quantity;
+	}
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+	private String stock;
     private String sector;
     private int quantity;
 }
